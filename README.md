@@ -5,7 +5,8 @@ This is the implementation of BMVC 2022 paper "A Tri-Layer Plugin to Improve Occ
 ![image1](./images/img1.png)
 ![image2](./images/img2.png)
 
-
+- [paper link](https://www.robots.ox.ac.uk/~vgg/publications/2022/zhan22/zhan22.pdf)
+- [project page](https://www.robots.ox.ac.uk/~vgg/research/tpod/)
 
 
 ## Installation
