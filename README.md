@@ -43,17 +43,6 @@ Download the <a href="https://weidixie.github.io/" target="_blank">COCO dataset<
 - \*Only Tri-Layer Modelling is applied as Cascade Mask R-CNN has already used multiple iterations.
 
 
-## Training
-
-```
-# batch_size = data.samples_per_gpu x num_gpu, we use batch_size=16 in our experiments, and set lr=1e-6
-# single-gpu training
-python tools/train.py <CONFIG_FILE> --no-validate --work-dir <WORK_DIR> --cfg-options data.samples_per_gpu=xxx optimizer.lr=xxx
-
-# multi-gpu training
-tools/dist_train.sh <CONFIG_FILE> <GPU_NUM> --no-validate --work-dir <WORK_DIR> --cfg-options data.samples_per_gpu=xxx optimizer.lr=xxx
-```
-
 ## Inference
 
 ```
