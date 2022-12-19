@@ -25,28 +25,6 @@ def compute_iou_mask(mask1, mask2):
     iou = intersection/(mask1_area+mask2_area-intersection)
     return iou
 
-def compute_iou_bbox(rec1, rec2):
-    left_column_max = max(rec1[0], rec2[0])
-    right_column_min = min(rec1[2], rec2[2])
-    up_row_max = max(rec1[1], rec2[1])
-    down_row_min = min(rec1[3], rec2[3])
-    # no intersections for two rectangles
-    if left_column_max >= right_column_min or down_row_min <= up_row_max:
-        return 0
-    # intersection exists for two rectangles
-    else:
-        S1 = (rec1[2] - rec1[0]) * (rec1[3] - rec1[1])
-        S2 = (rec2[2] - rec2[0]) * (rec2[3] - rec2[1])
-        S_cross = (down_row_min - up_row_max) * (right_column_min - left_column_max)
-        return S_cross / (S1 + S2 - S_cross)
-
-def occlu_ratio_2_level(occlu_ratio):
-    occlu_ratio = max(1 - occlu_ratio, 0) # obtain the ratio of occluded parts
-    if occlu_ratio == 0:
-        return 0
-    assert 1 <= math.ceil(occlu_ratio * 10.0) <= 10
-    return math.ceil(occlu_ratio * 10.0)
-
 
 # COCO Class ID from 0 to 79
 coco_noun_class_list = [
@@ -89,14 +67,11 @@ def main(dict_det, result_save_pth, gt_json, is_occ):
         
     CONFIDENCE_THRESHOLD = 0.3
     IOU_THRESHOLD = 0.75
-    IOU_BG_THRESHOLD = 0.1
-    bbox_fail_reason_dict = {"suc":0, "cls":0, "loc":0, "cls+loc":0, "miss":0}
-    mask_fail_reason_dict = {"suc":0, "cls":0, "loc(bbox)":0, "loc(mask)":0, "cls+loc":0, "miss":0}
+    mask_fail_reason_dict = {"suc":0}
     print(len(gt_json))
 
     for iter_i in range(len(gt_json)):
         print(iter_i)
-        print(bbox_fail_reason_dict)
         print(mask_fail_reason_dict)
         cur_item = gt_json[iter_i]
         cur_img_name = cur_item[0]
@@ -106,16 +81,10 @@ def main(dict_det, result_save_pth, gt_json, is_occ):
             cur_gt_bbox = [cur_gt_bbox[0], cur_gt_bbox[1], cur_gt_bbox[0] + cur_gt_bbox[2], cur_gt_bbox[1] + cur_gt_bbox[3]]
         cur_gt_class = cur_item[1]
         cur_gt_mask = coco_mask.decode(cur_item[4])
-        cur_occlu_ratio = cur_item[5]
-        if cur_occlu_ratio == "NAN":
-            continue
-        cur_occlu_level = occlu_ratio_2_level(cur_occlu_ratio)
 
-        flag_collect = [] # [mask_flag, bbox_flag]
         assert cur_img_name in dict_det.keys()
         cur_detections = dict_det[cur_img_name]
 
-        # first see whether mask is correctly recalled
         correct_flag = False
         for i in range(len(cur_detections)):
             cur_det_confidence = cur_detections[i][0]
@@ -129,114 +98,10 @@ def main(dict_det, result_save_pth, gt_json, is_occ):
             if cur_iou >= IOU_THRESHOLD:
                 correct_flag = True
                 break
-        flag_collect.append(correct_flag)
         if correct_flag == True:
-            vis_mask = cur_det_mask
-            vis_class = cur_det_class
-            vis_iou = cur_iou
-            vis_bbox_iou = compute_iou_bbox(cur_detections[i][3], cur_gt_bbox)
-            vis_conf = cur_det_confidence
-            vis_bbox = cur_detections[i][3] # visualize the corresponding bbox of the mask
             mask_fail_reason_dict['suc'] += 1
-        # second see whether box is correctly recalled
-        correct_flag = False
-        for i in range(len(cur_detections)):
-            cur_det_confidence = cur_detections[i][0]
-            if cur_det_confidence < CONFIDENCE_THRESHOLD:
-                break
-            cur_det_class = cur_detections[i][1]
-            if cur_det_class != cur_gt_class:
-                continue
-            cur_det_bbox = cur_detections[i][3]
-            # ipdb.set_trace()
-            cur_iou = compute_iou_bbox(cur_det_bbox, cur_gt_bbox)
-            if cur_iou >= IOU_THRESHOLD:
-                correct_flag = True
-                break
-        flag_collect.append(correct_flag)
-        if correct_flag == True:
-            bbox_fail_reason_dict['suc'] += 1
         
-        
-        # figure out the failure reason
-        # first figure out the mask failure reason
-        if flag_collect[0] == False:
-            max_iou = IOU_BG_THRESHOLD
-            max_iou_id = -1 
-            for i in range(len(cur_detections)):
-                cur_det_confidence = cur_detections[i][0]
-                if cur_det_confidence < CONFIDENCE_THRESHOLD:
-                    break
-                cur_det_class = cur_detections[i][1]
-                cur_det_mask = cur_detections[i][2]
-                cur_iou = compute_iou_mask(cur_det_mask, cur_gt_mask)
-                if cur_iou > max_iou:
-                    max_iou = cur_iou
-                    max_iou_id = i
-            if max_iou_id == -1:
-                mask_fail_reason_dict['miss'] += 1
-                vis_mask = -1
-                vis_class = -1
-                vis_conf = -1
-                vis_iou = -1
-                vis_bbox_iou = -1
-                vis_bbox = -1
-            else:
-                max_iou_conf = cur_detections[max_iou_id][0]
-                max_iou_class = cur_detections[max_iou_id][1]
-                max_iou_mask = cur_detections[max_iou_id][2]
-                max_iou_bbox = cur_detections[max_iou_id][3]
-                vis_mask = max_iou_mask
-                vis_bbox = max_iou_bbox
-                vis_class = max_iou_class
-                vis_conf = max_iou_conf
-                vis_iou = max_iou
-                vis_bbox_iou = compute_iou_bbox(vis_bbox, cur_gt_bbox)
-                assert max_iou_conf >= CONFIDENCE_THRESHOLD
-                if max_iou >= IOU_THRESHOLD:
-                    assert max_iou_class != cur_gt_class
-                    mask_fail_reason_dict['cls'] += 1
-                else:
-                    if max_iou_class == cur_gt_class:
-                        if vis_bbox_iou >= IOU_THRESHOLD:
-                            mask_fail_reason_dict['loc(mask)'] += 1
-                        else:
-                            mask_fail_reason_dict['loc(bbox)'] += 1
-                    else:
-                        mask_fail_reason_dict['cls+loc'] += 1
-        # second figure out the box failure reason
-        if flag_collect[1] == False:
-            max_iou = IOU_BG_THRESHOLD
-            max_iou_id = -1 
-            for i in range(len(cur_detections)):
-                cur_det_confidence = cur_detections[i][0]
-                if cur_det_confidence < CONFIDENCE_THRESHOLD:
-                    break
-                cur_det_class = cur_detections[i][1]
-                cur_det_bbox = cur_detections[i][3]
-                cur_iou = compute_iou_bbox(cur_det_bbox, cur_gt_bbox)
-                if cur_iou > max_iou:
-                    max_iou = cur_iou
-                    max_iou_id = i
-            if max_iou_id == -1:
-                bbox_fail_reason_dict['miss'] += 1
-            else:
-                max_iou_conf = cur_detections[max_iou_id][0]
-                max_iou_class = cur_detections[max_iou_id][1]
-                max_iou_mask = cur_detections[max_iou_id][2]
-                max_iou_bbox = cur_detections[max_iou_id][3]
-                assert max_iou_conf >= CONFIDENCE_THRESHOLD
-                if max_iou >= IOU_THRESHOLD:
-                    assert max_iou_class != cur_gt_class
-                    bbox_fail_reason_dict['cls'] += 1
-                else:
-                    if max_iou_class == cur_gt_class:
-                        bbox_fail_reason_dict['loc'] += 1
-                    else:
-                        bbox_fail_reason_dict['cls+loc'] += 1
-                    
-
-    save_dict_collect = [bbox_fail_reason_dict, mask_fail_reason_dict]
+    save_dict_collect = [mask_fail_reason_dict]
     # save the recall results
     with open(result_save_pth, "w") as dump_f:
         json.dump(save_dict_collect, dump_f)
