@@ -2,7 +2,7 @@
 
 This is the official implementation of BMVC 2022 paper "A Tri-Layer Plugin to Improve Occluded Detection" by <a href="https://championchess.github.io/" target="_blank">Guanqi Zhan</a>, <a href="https://weidixie.github.io/" target="_blank">Weidi Xie</a>, and <a href="https://scholar.google.com/citations?user=UZ5wscMAAAAJ&hl=en" target="_blank">Andrew Zisserman</a>, including the novel automatically generated real-image evaluation dataset **Occluded COCO** and **Separated COCO** to monitor the capability to detect occluded objects.
 
-[Update] **Occluded COCO** and **Separated COCO** have been supported by **<a href="https://mmdetection.readthedocs.io/en/dev/useful_tools.html#coco-separated-occluded-mask-metric" target="_blank">MMDetection</a>** as benchmark for object detection under occlusion. Now you can ```from mmdet.datasets import OccludedSeparatedCocoDataset```.
+[Update] **Occluded COCO** and **Separated COCO** have been supported by **<a href="https://mmdetection.readthedocs.io/en/dev/useful_tools.html#coco-separated-occluded-mask-metric" target="_blank">MMDetection</a>** as a standard benchmark for object detection under occlusion. Now you can ```from mmdet.datasets import OccludedSeparatedCocoDataset```.
 
 ![image1](./images/img1.png)
 ![image2](./images/img2.png)
