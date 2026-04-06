@@ -38,9 +38,9 @@ Download the <a href="https://weidixie.github.io/" target="_blank">COCO dataset<
 ## Model
 | Detector | Backbone | Plugin | Recall Occluded | Recall Separated | BBox mAP (val) | Mask mAP (val) | BBox mAP (test-dev) | Mask mAP (test-dev) | #params	| FLOPs | config | model |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |:---: | :---: | :---: |:---: |
-| Mask R-CNN | Swin-T | ours | 3441(62.00%) | 1223(34.72%) | 48.5 | 43.0 | 48.7 | 43.4 | 77.6M | 583.33G | [config](configs/swin/mask_rcnn_swin_tiny_patch4_window7_mstrain_480-800_adamw_3x_coco_our_plugin.py) | [ckpt](https://www.robots.ox.ac.uk/~vgg/research/tpod/ckpts/swin-t_our_plugin.pth)|
-| Mask R-CNN | Swin-S | ours | 3473(62.58%) | 1261(35.80%) | 50.3 | 44.2| 50.6 | 44.9 | 98.9M | 673.32G | [config](configs/swin/mask_rcnn_swin_small_patch4_window7_mstrain_480-800_adamw_3x_coco_our_plugin.py) | [ckpt](https://www.robots.ox.ac.uk/~vgg/research/tpod/ckpts/swin-s_our_plugin.pth)|
-| Cascade Mask R-CNN | Swin-B | ours* | 3532(63.64%) | 1299(36.88%) | 52.1 | 45.4 | 52.7 | 45.9 | 164.3M | 1353.68G | [config](configs/swin/cascade_mask_rcnn_swin_base_patch4_window7_mstrain_480-800_giou_4conv1f_adamw_3x_coco_tri_layer.py) | [ckpt](https://www.robots.ox.ac.uk/~vgg/research/tpod/ckpts/swin-b_tri_layer.pth)|
+| Mask R-CNN | Swin-T | ours | 3441(62.00%) | 1223(34.72%) | 48.5 | 43.0 | 48.7 | 43.4 | 77.6M | 583.33G | [config](configs/swin/mask_rcnn_swin_tiny_patch4_window7_mstrain_480-800_adamw_3x_coco_our_plugin.py) | [ckpt](https://drive.google.com/file/d/12RwQNkoh2JLUWvzrkNoZM2K2kg8Doelx/view?usp=sharing)|
+| Mask R-CNN | Swin-S | ours | 3473(62.58%) | 1261(35.80%) | 50.3 | 44.2| 50.6 | 44.9 | 98.9M | 673.32G | [config](configs/swin/mask_rcnn_swin_small_patch4_window7_mstrain_480-800_adamw_3x_coco_our_plugin.py) | [ckpt](https://drive.google.com/file/d/1sHN15i6ELiQNHWiLvbgkCv11J2Ix497w/view?usp=sharing)|
+| Cascade Mask R-CNN | Swin-B | ours* | 3532(63.64%) | 1299(36.88%) | 52.1 | 45.4 | 52.7 | 45.9 | 164.3M | 1353.68G | [config](configs/swin/cascade_mask_rcnn_swin_base_patch4_window7_mstrain_480-800_giou_4conv1f_adamw_3x_coco_tri_layer.py) | [ckpt](https://drive.google.com/file/d/1ItMW7lQ_KV6jD9QebrUryJdNSRbVULEk/view?usp=sharing)|
 
 - \*Only Tri-Layer Modelling is applied as Cascade Mask R-CNN has already used multiple iterations.
 
